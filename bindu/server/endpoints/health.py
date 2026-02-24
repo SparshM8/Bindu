@@ -11,6 +11,7 @@ from bindu import __version__
 from bindu.server.applications import BinduApplication
 from bindu.utils.request_utils import handle_endpoint_errors, get_client_ip
 from bindu.utils.logging import get_logger
+
 import os
 import platform
 import sys
@@ -27,6 +28,9 @@ async def health_endpoint(app: BinduApplication, request: Request) -> JSONRespon
 
     Backward-compatible implementation.
     """
+    # Measure endpoint execution time
+    start = monotonic()
+
     client_ip = get_client_ip(request)
     logger.debug(f"Health check from {client_ip}")
 
@@ -36,7 +40,7 @@ async def health_endpoint(app: BinduApplication, request: Request) -> JSONRespon
     scheduler_type = type(app._scheduler).__name__ if app._scheduler else None
     task_manager_running = app.task_manager.is_running if app.task_manager else False
 
-    # Strict readiness (new logic)
+    # Strict readiness
     strict_ready = all(
         [
             app._storage is not None,
@@ -54,24 +58,32 @@ async def health_endpoint(app: BinduApplication, request: Request) -> JSONRespon
     ):
         agent_did = app.manifest.did_extension.did
 
+    # Calculate response time in milliseconds
+    response_time_ms = round((monotonic() - start) * 1000, 2)
+
     payload = {
-        # --- ORIGINAL FIELDS (DO NOT CHANGE BEHAVIOR) ---
+        # Original fields (unchanged behavior)
         "status": "ok",
-        "ready": True,  # preserve original behavior for compatibility
+        "ready": True,
         "uptime_seconds": uptime,
         "version": __version__,
-        # --- NEW EXTENDED FIELDS ---
+
+        # Observability extension
         "health": "healthy" if strict_ready else "degraded",
+        "response_time_ms": response_time_ms,
+
         "runtime": {
             "storage_backend": storage_type,
             "scheduler_backend": scheduler_type,
             "task_manager_running": task_manager_running,
             "strict_ready": strict_ready,
         },
+
         "application": {
             "penguin_id": str(app.penguin_id),
             "agent_did": agent_did,
         },
+
         "system": {
             "python_version": sys.version.split()[0],
             "platform": platform.system(),
