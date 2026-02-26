@@ -5,6 +5,7 @@ Features OpenRouter integration with openai/gpt-oss-120b model.
 """
 
 from bindu.penguin.bindufy import bindufy
+from bindu.utils.env_validation import get_required_env
 from agno.agent import Agent
 from agno.models.openrouter import OpenRouter
 from dotenv import load_dotenv
@@ -17,7 +18,7 @@ agent = Agent(
     instructions="You are a professional summarization assistant. Create clear, concise summaries that capture the main points and essential information from any input text. Aim for 2-3 sentences that preserve the core meaning while being significantly shorter than the original.",
     model=OpenRouter(
         id="openai/gpt-oss-120b",
-        api_key=os.getenv("OPENROUTER_API_KEY")
+        api_key=get_required_env("OPENROUTER_API_KEY")
     ),
 )
 

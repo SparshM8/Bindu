@@ -23,6 +23,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from bindu.penguin.bindufy import bindufy
+from bindu.utils.env_validation import get_required_env
 from agno.agent import Agent
 from agno.tools.duckduckgo import DuckDuckGoTools
 from agno.models.openrouter import OpenRouter
@@ -33,7 +34,7 @@ agent = Agent(
     instructions="You are a weather research assistant. When asked about weather, provide a clear, concise weather report with current conditions, temperature, and forecast. Focus on the most relevant information and present it in an organized, easy-to-read format. Avoid showing multiple search results - synthesize the information into a single coherent response.",
     model=OpenRouter(
         id="openai/gpt-oss-120b",
-        api_key=os.getenv("OPENROUTER_API_KEY")
+        api_key=get_required_env("OPENROUTER_API_KEY")
     ),
     tools=[DuckDuckGoTools()],
 )

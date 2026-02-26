@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from bindu.penguin.bindufy import bindufy
+from bindu.utils.env_validation import get_required_env
 from agno.agent import Agent
 from agno.models.openrouter import OpenRouter
 from agno.tools.duckduckgo import DuckDuckGoTools
@@ -34,7 +35,7 @@ agent = Agent(
     """,
     model=OpenRouter(
         id="openai/gpt-oss-120b",
-        api_key=os.getenv("OPENROUTER_API_KEY"),
+        api_key=get_required_env("OPENROUTER_API_KEY"),
     ),
     tools=[DuckDuckGoTools()],
     markdown=True,

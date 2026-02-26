@@ -103,6 +103,72 @@ if __name__ == "__main__":
     agent.serve(port=3773)
 ```
 
+## Troubleshooting
+
+### API Key Issues
+
+If you see an error about missing API keys:
+
+```
+❌ Error: Required environment variable 'OPENROUTER_API_KEY' is not set.
+```
+
+**Solution:**
+1. Create a `.env` file in the project root
+2. Add your API key: `OPENROUTER_API_KEY=your-key-here`
+3. Or export it: `export OPENROUTER_API_KEY='your-key-here'`
+
+Get a free OpenRouter API key at: https://openrouter.ai/
+
+### Port Already in Use
+
+If you see `Address already in use` errors:
+
+**Solution:**
+- Change the port in the agent's config:
+  ```python
+  config = {
+      "deployment": {"url": "http://localhost:3774", ...}
+  }
+  ```
+- Or stop the conflicting service
+
+### Import Errors
+
+If you see `ModuleNotFoundError`:
+
+**Solution:**
+```bash
+# Ensure you're in the project directory and run:
+uv sync --dev
+
+# Or install specific dependencies:
+uv add agno langchain-openai duckduckgo-search
+```
+
+### Database Connection Errors
+
+If you see PostgreSQL connection errors:
+
+**Solution:**
+- Examples can run without a database using in-memory storage
+- For production, set `DATABASE_URL` in your `.env` file
+- Use the zero-config examples for local testing
+
+### Common Mistakes
+
+1. **Forgetting to load .env** - Always call `load_dotenv()` before accessing env vars
+2. **Wrong Python version** - Bindu requires Python 3.12+
+3. **Not activating venv** - Run `source .venv/bin/activate` (Unix) or `.venv\Scripts\activate` (Windows)
+4. **API key in wrong place** - Put `.env` in project root, not in examples folder
+
+## Getting Help
+
+- 💬 [Discord Community](https://discord.gg/3w5zuYUuwt)
+- 📚 [Documentation](https://docs.getbindu.com)
+- 🐛 [Report Issues](https://github.com/getbindu/Bindu/issues)
+- 📧 Email: raahul@getbindu.com
+
 ## Documentation
 
 - [Bindu Docs](https://docs.getbindu.com)
@@ -121,3 +187,7 @@ if __name__ == "__main__":
 ## License
 
 See [LICENSE.md](LICENSE.md)
+
+---
+
+**Happy Building! 🌻**

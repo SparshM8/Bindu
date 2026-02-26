@@ -17,6 +17,7 @@ Environment:
 
 import os
 from bindu.penguin.bindufy import bindufy
+from bindu.utils.env_validation import get_required_env
 from agno.agent import Agent
 from agno.tools.duckduckgo import DuckDuckGoTools
 from agno.models.openrouter import OpenRouter
@@ -28,7 +29,7 @@ load_dotenv()
 # Define your agent
 agent = Agent(
     instructions="You are a research assistant that finds and summarizes information.",
-    model=OpenRouter(id="openai/gpt-5-mini", api_key=os.getenv("OPENROUTER_API_KEY")),
+    model=OpenRouter(id="openai/gpt-5-mini", api_key=get_required_env("OPENROUTER_API_KEY")),
     tools=[DuckDuckGoTools()],
 )
 

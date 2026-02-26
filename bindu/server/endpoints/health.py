@@ -10,6 +10,7 @@ from starlette.responses import JSONResponse
 from bindu import __version__
 from bindu.server.applications import BinduApplication
 from bindu.utils.request_utils import handle_endpoint_errors, get_client_ip
+from bindu.utils.response_utils import to_json_response, ResponseBuilder
 from bindu.utils.logging import get_logger
 import os
 import platform
@@ -25,10 +26,23 @@ _start_time = monotonic()
 async def health_endpoint(app: BinduApplication, request: Request) -> JSONResponse:
     """Comprehensive health check endpoint.
 
-    Backward-compatible implementation.
+    Supports both legacy and standardized response formats for backward compatibility.
+
+    Query Parameters:
+        format: Response format ("legacy" or "standard", default: "legacy")
+
+    Legacy format (default):
+        Returns simple JSON with status, ready, uptime, version
+
+    Standard format (?format=standard):
+        Returns standardized response with metadata, trace_id, timestamp
     """
     client_ip = get_client_ip(request)
     logger.debug(f"Health check from {client_ip}")
+
+    # Check if client wants standardized format
+    response_format = request.query_params.get("format", "legacy")
+    use_standard_format = response_format == "standard"
 
     uptime = round(monotonic() - _start_time, 2)
 
@@ -54,7 +68,7 @@ async def health_endpoint(app: BinduApplication, request: Request) -> JSONRespon
     ):
         agent_did = app.manifest.did_extension.did
 
-    payload = {
+    health_data = {
         # --- ORIGINAL FIELDS (DO NOT CHANGE BEHAVIOR) ---
         "status": "ok",
         "ready": True,  # preserve original behavior for compatibility
@@ -80,4 +94,14 @@ async def health_endpoint(app: BinduApplication, request: Request) -> JSONRespon
         },
     }
 
-    return JSONResponse(payload)
+    # Return standardized format if requested
+    if use_standard_format:
+        builder = ResponseBuilder(version=__version__)
+        response = builder.success(
+            message="Health check completed",
+            data=health_data,
+        )
+        return to_json_response(response)
+
+    # Return legacy format (default)
+    return JSONResponse(health_data)
